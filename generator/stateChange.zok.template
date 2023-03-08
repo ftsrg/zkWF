@@ -1,0 +1,131 @@
+/*
+ * Copyright 2023 Contributors of the zkWF project
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+
+import "hashes/sha256/512bitPacked" as sha256packed
+import "hashes/sha256/512bit" as sha256h
+from "ecc/babyjubjubParams" import BabyJubJubParams
+import "signatures/verifyEddsa.zok" as verifyEddsa
+import "ecc/babyjubjubParams.zok" as context
+import "utils/casts/u32_to_field.zok" as u32_to_field
+import "utils/casts/field_to_u32.zok" as field_to_u32
+
+struct signed_field {
+    field value
+    bool positive
+}
+
+def signed_field_add(signed_field a,signed_field b) -> signed_field:
+    field value = if a.positive == b.positive then a.value + b.value else if a.value > b.value then a.value - b.value else b.value - a.value fi fi
+    bool positive = if a.positive == b.positive then a.positive else if a.value > b.value && a.positive || b.value > a.value && b.positive then true else false fi fi
+    return signed_field{value: value, positive: positive}
+
+def signed_field_sub(signed_field a,signed_field b) -> signed_field:
+    signed_field temp = signed_field{value: b.value,positive: !b.positive}
+    return signed_field_add(a,temp)
+
+def signed_field_graterThan(signed_field a,signed_field b) -> bool:
+    signed_field temp = signed_field_sub(a,b)
+    return temp.positive
+
+def signed_field_lessThan(signed_field a,signed_field b) -> bool:
+    return signed_field_graterThan(b,a)
+
+def signed_field_graterThanZero(signed_field a) -> bool:
+    return a.value > 0 && a.positive
+    
+def signed_field_lessThanZero(signed_field a) -> bool:
+    return a.value > 0 && !a.positive
+
+def signed_field_equal(signed_field a,signed_field b) -> bool:
+    return a.value == b.value && b.positive == a.positive
+
+def signed_field_create(field v,bool p) -> signed_field:
+    return signed_field{value: v,positive: p}
+
+def isNothing(signed_field[2] a) -> bool:
+    return a[0].value == 0 && a[1].value == 1 && !a[1].positive
+    
+def Li_graterThan(signed_field[3] a,signed_field[3] b) -> bool :
+    return if signed_field_lessThan(a[1],b[1]) && !isNothing(a[0..2]) && !isNothing(b[0..2])|| signed_field_equal(a[1],b[1]) && signed_field_lessThan(a[2],b[2]) && !isNothing(a[0..2]) && !isNothing(b[0..2]) || isNothing(a[0..2]) && isNothing(b[0..2]) && signed_field_lessThan(a[2],b[2]) || !isNothing(a[0..2]) && isNothing(b[0..2]) then true else false fi 
+    
+const signed_field signed_field_zero = signed_field{value: 0, positive:true}
+const signed_field signed_field_one = signed_field{value: 1, positive:true}
+const signed_field signed_field_negative_one = signed_field{value: 1, positive:false}
+const signed_field[2] nothing = [signed_field{value: 0, positive:true},signed_field{value: 1, positive:false}]
+
+[[ !!!REPLACE THIS WITH CONSTANTS!!! ]]
+
+def main(private u32[len_V] s_curr,private u32[len_V] s_next) -> u32[4]:
+    signed_field[3][2] changes = [nothing;3]
+    u32[4] chres = [0;4]
+    u32 change_count = 0 
+    u32 pos = 0
+    for u32 i in 0..len_V do 
+        assert( s_curr[i] <= 2 && s_next[i] <= 2)
+    endfor
+
+    for u32 i in 0..len_V do
+        u32 change_id = if change_count <= 2 then change_count else 0 fi
+        changes[change_id] = if s_curr[i] == s_next[i] then\
+            changes[change_id] \
+        else if s_curr[i] == 1 && s_next[i] == 2 then\
+         [signed_field{value: 1,positive: false},signed_field{value:u32_to_field(i),positive:true}]\
+        else if s_curr[i] == 0 && s_next[i] == 1 then \
+            [signed_field{value: 1,positive: true},signed_field{value: u32_to_field(i),positive:true}] \
+        else if s_curr[i] == 0 && s_next[i] == 2 then \
+            [signed_field{value: 1,positive: false},signed_field{value: u32_to_field(i),positive:true}] \
+        else \
+            [signed_field{value: 1,positive: false},signed_field{value: 1,positive:false}] \
+        fi fi fi fi
+        pos = if s_curr[i] != s_next[i] && !changes[change_id][0].positive then i else pos fi
+        chres[change_id] = if s_curr[i] != s_next[i]  then i else chres[change_id] fi
+        change_count = if s_curr[i] == s_next[i] then change_count else change_count + 1 fi
+    endfor
+    chres[3] = pos
+
+    assert(change_count != 1 || pos != 0) // New tokens cannot be created by calling the start event again...
+    assert(change_count <= 3)
+    bool result = if change_count == 0 then true else false fi
+    for u32 i in 0..len_w do
+        bool good = true
+        for u32 j in 0..3 do
+            bool pair_found = false
+            for u32 k in 0..3 do
+                pair_found = if signed_field_equal(p[i][j][0],changes[k][0]) && signed_field_equal(p[i][j][1],changes[k][1]) then true else pair_found fi
+            endfor
+            good = if pair_found then good else false fi
+        endfor
+        result = if good then true else result fi
+    endfor
+
+    for u32 i in 0..len_w do
+        bool good = if change_count == 1 then true else false fi
+        u32 minusCount = 0
+        bool contains = false
+        u32 other = 0
+        for u32 j in 0..3 do
+            minusCount = if signed_field_equal(p[i][j][0],signed_field_create(1,false)) then minusCount + 1 else minusCount fi
+            contains = if signed_field_equal(p[i][j][0],changes[0][0]) && signed_field_equal(p[i][j][1],changes[0][1]) then true else contains fi
+            other = if signed_field_equal(p[i][j][0],changes[0][0]) && !signed_field_equal(p[i][j][1],changes[0][1]) then field_to_u32(p[i][j][1].value) else other fi
+        endfor
+        good = if minusCount == 2 && contains && s_next[other] != 2 then good else false fi
+        result = if good then true else result fi
+    endfor
+
+
+    assert(result)
+    return chres

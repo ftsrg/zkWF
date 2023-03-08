@@ -1,0 +1,38 @@
+{
+  "name": "ZKP",
+  "prefix": "zkp",
+  "uri": "http://zkp.toldi.eu",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "Public Key",
+      "extends": [
+        "bpmn:Lane",
+        "bpmn:Participant"
+      ],
+      "properties": [
+        {
+          "name": "publicKey",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "Variables",
+      "extends": [
+        "bpmn:Task"
+      ],
+      "properties": [
+        {
+          "name": "variables",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

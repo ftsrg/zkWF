@@ -1,0 +1,61 @@
+/*
+ * Copyright 2023 Contributors of the zkWF project
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import "hashes/sha256/sha256.zok" as sha256h
+import "utils/casts/bool_256_to_u32_8.zok" as bool_to_u32
+import "utils/pack/u32/nonStrictUnpack256.zok" as field_to_u32
+import "ecc/babyjubjubParams.code" as context
+from "ecc/babyjubjubParams" import BabyJubJubParams
+import "signatures/verifyEddsa.zok" as verifyEddsa
+import "ecc/proofOfOwnership.zok" as proofOfOwnership
+import "./stateChange.zok" as stateChange
+
+
+[[ !!!REPLACE THIS WITH CONSTANTS!!! ]]
+
+struct variables {
+[[ !!!REPLACE THIS WITH VARIABLES!!! ]]
+}
+
+struct message_hashes {
+[[ !!!REPLACE THIS WITH MESSAGES!!! ]]
+}
+
+const u32 hash_in_len = 8
+
+def sha256State(u32[len_V] s_n,u32 random,variables v,message_hashes msg) -> u32[hash_in_len]:
+    u32[8] hash = [[ !!! REPLACE THIS WITH HASH FUNCTION !!!] ]
+    return hash
+
+def main(public u32[8] h_s_curr,private u32[len_V] s_curr,private u32 r_curr,private variables v_curr,private message_hashes msg_curr,private u32[len_V] s_next,private u32 r_next,private variables v_next,private message_hashes msg_next,field[2] R,field S,private field[2] A,private field sk) -> u32[8]:
+    assert(r_curr != r_next)
+    u32[8] h_curr = sha256State(s_curr,r_curr,v_curr,msg_curr)
+    assert(h_s_curr == h_curr)
+    
+    //bool b = if s_curr == [0, 0, 1] then s_next == [0, 0, 0] || s_next == [0, 0, 1] else if s_curr == [1, 0, 0] then s_next == [0, 1, 0] || s_next == [1, 0, 0] else if s_curr == [0, 1, 0] then s_next == [0,0,1] || s_next == [0, 1, 0] else false fi fi fi
+    u32[4] changes = stateChange(s_curr,s_next)
+    u32 state = changes[3]
+[[ !!! REPLACE THIS WITH HASH VARIABLE ASSERTION !!!]]
+    // Itt a trace már biztosan helyes
+    BabyJubJubParams context = context()
+    field[2] pk = keys[state]
+    assert(pk != [0,0])
+    assert(A == pk || changes == [0;4])
+    u32[8] result = sha256State(s_next,r_next,v_next,msg_next)
+    bool isVerified = proofOfOwnership(A,sk,context) && verifyEddsa(R, S, A, h_curr, result, context)
+    assert(isVerified)
+    return result
+

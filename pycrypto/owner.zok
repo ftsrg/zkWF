@@ -1,0 +1,9 @@
+import "ecc/babyjubjubParams.code" as context
+from "ecc/babyjubjubParams" import BabyJubJubParams
+import "ecc/proofOfOwnership.zok" as proofOfOwnership
+
+def main(field[2] pk, field sk) -> bool:
+    BabyJubJubParams context = context()
+    bool result = proofOfOwnership(pk,sk,context)
+    assert(result)
+    return result

@@ -1,0 +1,13 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+/.classpath
+/.git/
+/.gradle/
+/.project
+/.settings/
+/bin/
+/build/
+*.sol
+*.zok

@@ -1,0 +1,45 @@
+import "hashes/sha256/sha256.zok" as sha256h
+import "hashes/sha256/embed/256bitPadded.zok" as sha256Boolh
+import "utils/casts/bool_256_to_u32_8.zok" as bool_to_u32
+import "hashes/sha256/512bitPacked.zok" as sha256Fieldh
+import "utils/pack/u32/nonStrictUnpack256.zok" as field_to_u32
+
+const u32 hash_in_len = 8
+
+const u32 len_V = 5
+
+struct variables {
+	u32 a
+	bool b
+	u32 c
+	field d
+	bool e
+}
+
+def sha256withRandomness(u32[len_V] s_n,u32 random) -> u32[hash_in_len]:
+    u32[8] hash = [0;8]
+    hash = sha256h([[...s_n[0..5],random,0x80000000,...[0; 9]]])
+    return hash
+
+def sha256Bool(bool b) -> u32[hash_in_len]:
+    return bool_to_u32(sha256Boolh([b,...[false;255]]))
+
+def sha256Field(field f) -> u32[hash_in_len]:
+    return sha256h([[...field_to_u32(f),0x80000000,...[0;7]]])
+
+
+def sha256Variables(variables v) -> u32[hash_in_len]:
+    u32[8] hash = [0;8]
+	hash = sha256h([[v.a,...[0;7],...hash]])
+	hash = sha256h([[...sha256Bool(v.b),...hash]])
+	hash = sha256h([[v.c,...[0;7],...hash]])
+	hash = sha256h([[...sha256Field(v.d),...hash]])
+	hash = sha256h([[...sha256Bool(v.e),...hash]])
+
+    return hash
+
+def main(u32[len_V] s_n,u32 random,variables v,u32 lastChange) -> u32[hash_in_len]:
+    u32[8] hash = sha256withRandomness(s_n,random)
+    //hash = sha256h([[...sha256Variables(v),...hash]])
+    hash = sha256h([[...sha256h([[lastChange,0x80000000,...[0;6],...hash]]),...hash]])
+    return hash

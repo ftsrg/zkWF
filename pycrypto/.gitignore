@@ -1,0 +1,12 @@
+include
+lib
+share
+src/.ipynb_checkpoints
+*.ipynb
+*.pyc
+.vscode
+.idea
+.ipynb_checkpoints
+env
+zokrates_args
+node_modules

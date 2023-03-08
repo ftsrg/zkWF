@@ -1,0 +1,17 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+.zokrates
+.idea
+.vscode
+/.classpath
+/.gradle/
+/.project
+/.settings/
+/bin/
+/build/
+*.txdata
+abi.json
+*.key
+out
+witness

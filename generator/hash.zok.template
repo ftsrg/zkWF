@@ -1,0 +1,20 @@
+import "hashes/sha256/sha256.zok" as sha256h
+import "utils/casts/bool_256_to_u32_8.zok" as bool_to_u32
+import "utils/pack/u32/nonStrictUnpack256.zok" as field_to_u32
+
+
+[[ !!!REPLACE THIS WITH CONSTANTS!!! ]]
+
+struct variables {
+[[ !!!REPLACE THIS WITH VARIABLES!!! ]]
+}
+
+struct message_hashes {
+[[ !!!REPLACE THIS WITH MESSAGES!!! ]]
+}
+
+const u32 hash_in_len = 8
+
+def main(u32[len_V] s_n,u32 random,variables v,message_hashes msg)  -> u32[hash_in_len]:
+    u32[8] hash = [[ !!! REPLACE THIS WITH HASH FUNCTION !!!] ]
+    return hash

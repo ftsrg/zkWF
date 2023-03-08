@@ -1,0 +1,3 @@
+def main(private field a,public field b,private field c):
+    assert(a*a ==b+c)
+    return

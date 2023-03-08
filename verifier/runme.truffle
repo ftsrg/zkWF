@@ -1,0 +1,5 @@
+hash0 = JSON.parse(fs.readFileSync("/home/balazs/Code/Ethereum/TraceVerifier/hash0.json"));
+hash1 = JSON.parse(fs.readFileSync("/home/balazs/Code/Ethereum/TraceVerifier/hash1.json"));
+proof = JSON.parse(fs.readFileSync("/home/balazs/Code/Zokrates/trace2/proof.json"));
+contract = await Model.new(hash0,"[1,0,0]")
+contract.stepModel(hash1,"[0,1,0]",proof.proof)

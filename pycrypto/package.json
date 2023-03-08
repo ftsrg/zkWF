@@ -1,0 +1,18 @@
+{
+  "name": "zokrates-sig",
+  "version": "1.0.0",
+  "description": "This repository contains accompanying crypto application code for the zkSNARKs toolbox [ZoKrates](https://github.com/Zokrates/ZoKrates).",
+  "main": "zokrates_hash.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "zokrates-js": "^1.0.39"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bazsalanszky",
+  "license": "GPL-2.0-or-later"
+}
