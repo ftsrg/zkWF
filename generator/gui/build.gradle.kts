@@ -9,7 +9,7 @@ plugins {
     id ("org.web3j.solidity") version "0.3.2"*/
     application
     java
-    kotlin("jvm") version "1.0.0"
+    kotlin("jvm")
 }
 
 

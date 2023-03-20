@@ -2,7 +2,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "6.1.0"
     application
     java
-    kotlin("jvm") version "1.0.0"
+    kotlin("jvm")
 }
 
 group = "eu.toldi"
