@@ -4,6 +4,11 @@
 
 A Blockchain-based, confidentiality-preserving orchestration engine of collaborative workflows.
 
+## Showcase Video
+
+Check out our showcase video [here](https://www.youtube.com/watch?v=ER7GOUJayPc) to see zkWF in action!
+
+
 ## Structure
 The project is stuctured into multiple directories:
 
