@@ -17,6 +17,26 @@ The project is stuctured into multiple directories:
 - verifier - code for the state-manager smart contract
 - verifier_fabric - verifier smart contract for Hyperledger Fabric
 
+## Usage
+### WFGUI
+To compile and run the WFGUI component of zkWF, follow these steps:
+
+1. Open a terminal or command prompt and navigate to the generator directory.
+2. Run the following command to compile the WFGUI: `./gradlew gui:shadowjar` (on Linux) or `gradlew.bat gui:shadowjar` (on Windows).
+3. Once the compilation process completes, navigate to the gui/build/libs directory.
+4. Launch the WFGUI by running the following command: `java -jar WFGUI.jar`
+
+### CLI
+To compile the CLI tool, execute the following Gradle command: `./gradlew cli:shadowjar` (on Linux) or `gradlew.bat cli:shadowjar` (on Windows).
+
+- The tool is compiled to a JAR called cli-1.0-SNAPSHOT-all.jar.
+- To run test cases in a batch using the CLI component, use the following Java command: `java -jar cli-1.0-SNAPSHOT-all.jar [OPTIONS] <bpmnFile> <testCases>`.
+- The available options are:
+  - --deploy: Deploys the smart contract. Default is false.
+  - --skip-setup: Skips the setup phase. Default is false.
+  - --skip-tests: Skips all test cases and only does the setup and compilation phase. Default is false.
+- To list the available parameters for the CLI component, use the --help option.
+
 ## Authors
 - Balázs Ádám Toldi
 - Dr. Imre Kocsis
