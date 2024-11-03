@@ -1,0 +1,8 @@
+*.r1cs
+contract.sol
+*.wtns
+*.ptau
+*.log
+*.bin
+bin/*
+build/*

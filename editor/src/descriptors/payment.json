@@ -1,0 +1,29 @@
+{
+  "name": "Payments",
+  "prefix": "payments",
+  "uri": "http://pay.toldi.eu",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "BewitchedStartEvent",
+      "extends": [
+        "bpmn:Task"
+      ],
+      "properties": [
+        {
+          "name": "participant",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "amount",
+          "isAttr": true,
+          "type": "Integer"
+        }
+      ]
+    }
+  ]
+}
