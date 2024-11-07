@@ -88,3 +88,44 @@ Flags:
   -h, --help   help for zkwf
 ```
 
+### Typical Workflow
+
+0. Generate a new key pair
+
+```bash
+zkWF generate-key
+```
+
+1. Compile the BPMN model into a zero-knowledge circuit
+
+```bash
+zkWF compile -f models/t1_zkp.bpmn
+```
+
+2. Setup the zero-knowledge circuit
+
+```bash
+zkWF setup circuit.r1cs
+```
+
+3. Fill the inputs for the zero-knowledge circuit
+
+First, prepare the inputs manually in the `inputs.json` file. Then, fill the inputs for the zero-knowledge circuit
+
+```bash
+zkWF fill-inputs inputs.json keys.json
+```
+
+This will fill out the hash, randomnness, public key, and signature inputs for the circuit.
+
+4. Generate a witness for the given input
+
+```bash
+zkfw witness models/t1_zkp.bpmn inputs.json
+```
+
+5. Prove the statement using the given circuit and witness
+
+```bash
+zkWF prove circuit.r1cs pk.bin full.wtns
+```
