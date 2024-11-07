@@ -21,7 +21,7 @@ type ZkWFProgram struct {
 type State struct {
 	States    []big.Int
 	Variables map[string]big.Int
-	Messages  map[string]big.Int
+	Messages  map[string]string
 	Balances  map[string]string
 	Radomness string
 }
@@ -50,31 +50,16 @@ func NewZkWFProgram(modelPath string) (*ZkWFProgram, error) {
 	circuit.Model = graph
 	circuit.State_curr.States = make([]frontend.Variable, len(executables))
 	circuit.State_new.States = make([]frontend.Variable, len(executables))
-	circuit.State_curr.Variables = make(map[string]frontend.Variable, len(graph.Variables))
-	circuit.State_new.Variables = make(map[string]frontend.Variable, len(graph.Variables))
-	circuit.State_curr.Messages = make(map[string]frontend.Variable, graph.MessageCount)
-	circuit.State_new.Messages = make(map[string]frontend.Variable, graph.MessageCount)
-	circuit.State_curr.Balances = make(map[string]frontend.Variable, graph.ParticpnatCount)
-	circuit.State_new.Balances = make(map[string]frontend.Variable, graph.ParticpnatCount)
+	circuit.State_curr.Variables = make([]frontend.Variable, len(graph.Variables))
+	circuit.State_new.Variables = make([]frontend.Variable, len(graph.Variables))
+	circuit.State_curr.Messages = make([]frontend.Variable, graph.MessageCount)
+	circuit.State_new.Messages = make([]frontend.Variable, graph.MessageCount)
+	circuit.State_curr.Balances = make([]frontend.Variable, graph.ParticpnatCount)
+	circuit.State_new.Balances = make([]frontend.Variable, graph.ParticpnatCount)
 	ecryptionLen := 2 + len(graph.Variables) + graph.MessageCount + graph.ParticpnatCount
 	log.Println("Encryption length: ", ecryptionLen)
 	circuit.Encrypted = make([]frontend.Variable, ecryptionLen)
 	circuit.Key = make([]frontend.Variable, ecryptionLen/2)
-
-	for _, key := range graph.MessageMap {
-		circuit.State_curr.Messages[key] = 0
-		circuit.State_new.Messages[key] = 0
-	}
-
-	for _, key := range graph.Variables {
-		circuit.State_curr.Variables[key] = 0
-		circuit.State_new.Variables[key] = 0
-	}
-
-	for i := 0; i < graph.ParticpnatCount; i++ {
-		circuit.State_curr.Balances[fmt.Sprintf("p%d", i)] = 0
-		circuit.State_new.Balances[fmt.Sprintf("p%d", i)] = 0
-	}
 
 	return &ZkWFProgram{
 		Model:   graph,
@@ -102,24 +87,30 @@ func (zkwf *ZkWFProgram) LoadCompiled(path string) error {
 func (state State) toVariableState() statechecker.State {
 	var w statechecker.State
 	w.States = make([]frontend.Variable, len(state.States))
-	w.Variables = make(map[string]frontend.Variable, len(state.Variables))
-	w.Messages = make(map[string]frontend.Variable, len(state.Messages))
-	w.Balances = make(map[string]frontend.Variable, len(state.Balances))
+	w.Variables = make([]frontend.Variable, len(state.Variables))
+	w.Messages = make([]frontend.Variable, len(state.Messages))
+	w.Balances = make([]frontend.Variable, len(state.Balances))
 
 	for i, bigInt := range state.States {
 		w.States[i] = bigInt
 	}
 
-	for key, bigInt := range state.Variables {
-		w.Variables[key] = bigInt
+	i := 0
+	for _, bigInt := range state.Variables {
+		w.Variables[i] = bigInt
+		i++
 	}
 
-	for key, bigInt := range state.Messages {
-		w.Messages[key] = bigInt
+	i = 0
+	for _, bigInt := range state.Messages {
+		w.Messages[i], _ = big.NewInt(0).SetString(bigInt, 10)
+		i++
 	}
 
-	for key, bigInt := range state.Balances {
-		w.Balances[key], _ = big.NewInt(0).SetString(bigInt, 10)
+	i = 0
+	for _, bigInt := range state.Balances {
+		w.Balances[i], _ = big.NewInt(0).SetString(bigInt, 10)
+		i++
 	}
 
 	w.Radomness, _ = big.NewInt(0).SetString(state.Radomness, 10)

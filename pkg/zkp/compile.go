@@ -11,6 +11,7 @@ import (
 )
 
 func (zkwf *ZkWFProgram) Compile(output string) error {
+
 	ccs, err := frontend.Compile(ecc.BN254.ScalarField(), scs.NewBuilder, zkwf.Circuit)
 	if err != nil {
 		return fmt.Errorf("circuit compilation error: %w", err)

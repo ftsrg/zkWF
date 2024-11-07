@@ -93,7 +93,7 @@ func compressState(state State) []*big.Int {
 	}
 
 	for _, m := range state.Messages {
-		compressedState[i] = &m
+		compressedState[i], _ = new(big.Int).SetString(m, 10)
 		i++
 	}
 

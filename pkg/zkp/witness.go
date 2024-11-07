@@ -51,6 +51,10 @@ func (zkwf *ZkWFProgram) ComputeWitness(inputPath, witnessFullPath, publicWitnes
 	w.Signature.Assign(twistededwards.ID(ecc.BN254), sigBytes)
 
 	w.Model = zkwf.Model
+	w.VariableMapping = make(map[string]int)
+	for i, n := range w.Model.Variables {
+		w.VariableMapping[n] = i
+	}
 
 	log.Println("Creating witness")
 	witnessFull, err := frontend.NewWitness(&w, ecc.BN254.ScalarField())

@@ -18,14 +18,14 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 
 	// Add processes and their elements (nodes)
 	for _, process := range defs.Process {
-		participantRaw := findParticpantID(defs.Collab.Participant, process.ID)
+		id, participantRaw := findParticpantID(defs.Collab.Participant, process.ID)
 
 		ownerStr := strings.Split(participantRaw.PublicKey, ",")
 		var party Participant
 
 		party.PublicKey[0].SetString(ownerStr[0], 10)
 		party.PublicKey[1].SetString(ownerStr[1], 10)
-		party.ID = participantRaw.ID
+		party.ID = id
 		party.Name = participantRaw.Name
 
 		// Add start events
@@ -40,7 +40,8 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 			}
 			if task.Type == "paymentTask" {
 				graph.addNodeWithOwner(task.ID, "PaymentTask", task.Name, party)
-				graph.Nodes[task.ID].Payment = Payment{Receiver: task.Participant, Amount: task.Amount}
+				partId, _ := findParticpantIdByName(defs.Collab.Participant, task.Participant)
+				graph.Nodes[task.ID].Payment = Payment{Receiver: partId, Amount: task.Amount}
 			} else {
 				graph.addNodeWithOwner(task.ID, "Task", task.Name, party)
 			}
@@ -55,7 +56,7 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 		for _, event := range process.IntermediateCatchEvent {
 			graph.addNodeWithOwner(event.ID, "IntermediateCatchEvent", "", party)
 			message := findMessage(event.ID, defs.Collab.MessageFlow)
-			if message != "" {
+			if message != -1 {
 				graph.MessageMap[event.ID] = message
 			} else {
 				panic("Message not found for intermediate catch event: " + event.ID)
@@ -64,7 +65,7 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 		for _, event := range process.IntermediateThrowEvent {
 			graph.addNodeWithOwner(event.ID, "IntermediateThrowEvent", "", party)
 			message := findMessage(event.ID, defs.Collab.MessageFlow)
-			if message != "" {
+			if message != -1 {
 				graph.MessageMap[event.ID] = message
 			} else {
 				panic("Message not found for intermediate throw event: " + event.ID)
@@ -143,20 +144,29 @@ func (g *BPMNGraph) addEdge(id, name, sourceID, targetID string) {
 	}
 }
 
-func findMessage(nodeId string, messages []bpmn.MessageFlow) string {
-	for _, message := range messages {
+func findMessage(nodeId string, messages []bpmn.MessageFlow) int {
+	for i, message := range messages {
 		if message.SourceRef == nodeId || message.TargetRef == nodeId {
-			return message.ID
+			return i
 		}
 	}
-	return ""
+	return -1
 }
 
-func findParticpantID(particpiants []bpmn.Participant, id string) *bpmn.Participant {
-	for _, participant := range particpiants {
+func findParticpantID(particpiants []bpmn.Participant, id string) (int, *bpmn.Participant) {
+	for i, participant := range particpiants {
 		if participant.ProcessRef == id {
-			return &participant
+			return i, &participant
 		}
 	}
-	return nil
+	return -1, nil
+}
+
+func findParticpantIdByName(particpiants []bpmn.Participant, name string) (int, *bpmn.Participant) {
+	for i, participant := range particpiants {
+		if participant.Name == name {
+			return i, &participant
+		}
+	}
+	return -1, nil
 }

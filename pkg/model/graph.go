@@ -8,7 +8,7 @@ type BPMNGraph struct {
 	Edges           map[string]*Edge // Map of flow IDs to Edges
 	Variables       []string
 	MessageCount    int
-	MessageMap      map[string]string
+	MessageMap      map[string]int
 	ParticpnatCount int
 }
 
@@ -25,13 +25,13 @@ type Node struct {
 }
 
 type Participant struct {
-	ID        string
+	ID        int
 	Name      string
 	PublicKey [2]big.Int
 }
 
 type Payment struct {
-	Receiver string
+	Receiver int
 	Amount   string
 }
 
@@ -50,6 +50,6 @@ func NewBPMNGraph() *BPMNGraph {
 		Edges:        make(map[string]*Edge),
 		Variables:    make([]string, 0),
 		MessageCount: 0,
-		MessageMap:   make(map[string]string),
+		MessageMap:   make(map[string]int),
 	}
 }

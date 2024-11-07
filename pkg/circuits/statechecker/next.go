@@ -49,10 +49,14 @@ func inclusiveGatewayActivated(api frontend.API, circuit Circuit, same []fronten
 
 func clusiveSum(api frontend.API, circuit Circuit, same []frontend.Variable, node *model.Node) frontend.Variable {
 	activated := make([]frontend.Variable, len(node.Outgoing))
+	expressionTrue := make([]frontend.Variable, len(node.Outgoing))
 	for i, next := range node.Outgoing {
-		var expressionTrue frontend.Variable = common.TRUE
+
 		if next.Name != "" {
-			expressions.EvaluateExpression(api, next.Name, circuit.State_new.Variables)
+			expressionTrue[i] = expressions.EvaluateExpression(api, next.Name, circuit.State_new.Variables, circuit.VariableMapping)
+			api.Println("Expression: ", next.Name, " = ", expressionTrue[i])
+		} else {
+			expressionTrue[i] = common.TRUE
 		}
 		var activated_helper frontend.Variable
 		switch next.TargetRef.Type {
@@ -68,7 +72,7 @@ func clusiveSum(api frontend.API, circuit Circuit, same []frontend.Variable, nod
 			activated_helper = api.Select(same[index], common.FALSE, utils.IsEqual(api, circuit.State_new.States[index], common.STATE_READY))
 		}
 
-		activated[i] = api.And(expressionTrue, activated_helper)
+		activated[i] = api.And(expressionTrue[i], activated_helper)
 	}
 
 	sum := make([]frontend.Variable, len(activated))

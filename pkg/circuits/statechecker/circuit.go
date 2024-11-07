@@ -19,22 +19,23 @@ import (
 )
 
 type Circuit struct {
-	Model      *model.BPMNGraph
-	State_curr State
-	State_new  State
-	HashCurr   frontend.Variable `gnark:",public"`
-	HashNew    frontend.Variable `gnark:",public"`
-	PublicKey  eddsa.PublicKey   `gnark:",public"`
-	Signature  eddsa.Signature   `gnark:",public"`
-	Key        []frontend.Variable
-	Encrypted  []frontend.Variable `gnark:",public"`
+	Model           *model.BPMNGraph
+	VariableMapping map[string]int
+	State_curr      State
+	State_new       State
+	HashCurr        frontend.Variable `gnark:",public"`
+	HashNew         frontend.Variable `gnark:",public"`
+	PublicKey       eddsa.PublicKey   `gnark:",public"`
+	Signature       eddsa.Signature   `gnark:",public"`
+	Key             []frontend.Variable
+	Encrypted       []frontend.Variable `gnark:",public"`
 }
 
 type State struct {
 	States    []frontend.Variable
-	Variables map[string]frontend.Variable
-	Messages  map[string]frontend.Variable
-	Balances  map[string]frontend.Variable
+	Variables []frontend.Variable
+	Messages  []frontend.Variable
+	Balances  []frontend.Variable
 	Radomness frontend.Variable
 }
 
@@ -110,8 +111,8 @@ func (circuit Circuit) Define(api frontend.API) error {
 			newBalance := circuit.State_new.Balances[task.Payment.Receiver]
 			expectedBalance := api.Add(circuit.State_curr.Balances[task.Payment.Receiver], task.Payment.Amount)
 			api.AssertIsEqual(api.Select(complated[index], utils.IsEqual(api, newBalance, expectedBalance), common.TRUE), common.TRUE)
-			newBalance = circuit.State_new.Balances[task.Owner.Name]
-			expectedBalance = api.Sub(circuit.State_curr.Balances[task.Owner.Name], task.Payment.Amount)
+			newBalance = circuit.State_new.Balances[task.Owner.ID]
+			expectedBalance = api.Sub(circuit.State_curr.Balances[task.Owner.ID], task.Payment.Amount)
 			api.AssertIsEqual(api.Select(complated[index], utils.IsEqual(api, newBalance, expectedBalance), common.TRUE), common.TRUE)
 			paymentDone = api.Select(complated[index], 1, paymentDone)
 		}
@@ -267,7 +268,8 @@ func compressedState(api frontend.API, state State) []frontend.Variable {
 	stateCompressed[0] = utils.CompressToFieldElement(api, state.States)
 	stateCompressed[1] = state.Radomness
 	i := 2
-	for _, v := range state.Variables {
+	for k, v := range state.Variables {
+		api.Println("Variable:", v, k)
 		stateCompressed[i] = v
 		i++
 	}
