@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zkp="http://zkp.toldi.eu" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
   <bpmn2:collaboration id="Collaboration_1hy5tb7">
-    <bpmn2:participant id="Participant_1p8eno4" name="Participant 1" processRef="Process_1" zkp:publicKey="7350854827252829541674033642803854801334834402587808031858165572750984534676, 21854189621934227298279236061289964015847784208108325958639815905934377828601" />
+    <bpmn2:participant id="Participant_1p8eno4" name="Participant 1" processRef="Process_1" zkp:publicKey="9110823697697653521300390055012661231948543395071582949354990513676511311794,355406349571433434882517807762048672799069130114095471810817551582584129605" />
     <bpmn2:participant id="Participant_14xf1tz" name="Participant 2" processRef="Process_1aohhb2" zkp:publicKey="21715273850596312954904974472147290906491269550500570193604680361889132220377, 3161870534391964258194010589089177316887486533167236663570547206873941016760" />
     <bpmn2:messageFlow id="Flow_1cn1qff" sourceRef="Event_02ruzzy" targetRef="Event_04wdh1u" />
     <bpmn2:messageFlow id="Flow_1lsz6cn" sourceRef="Event_1x8af1g" targetRef="Event_00t5uik" />

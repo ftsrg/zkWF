@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
   <bpmn2:collaboration id="Collaboration_0r2e5tk">
-    <bpmn2:participant id="Participant_0tb0asf" name="Organization 1" processRef="Process_1" />
+    <bpmn2:participant id="Participant_0tb0asf" name="Organization 1" processRef="Process_1" zkp:publicKey="9110823697697653521300390055012661231948543395071582949354990513676511311794,355406349571433434882517807762048672799069130114095471810817551582584129605"/>
   </bpmn2:collaboration>
   <bpmn2:process id="Process_1" isExecutable="false">
     <bpmn2:laneSet id="LaneSet_0fnjla2">

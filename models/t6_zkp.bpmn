@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zkp="http://zkp.toldi.eu" id="Definitions_0ip9pvh" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="17.11.1">
   <bpmn:collaboration id="Collaboration_1l0uaag">
-    <bpmn:participant id="Participant_0bryhed" processRef="Process_1ucx7sx" />
+    <bpmn:participant id="Participant_0bryhed" processRef="Process_1ucx7sx" zkp:publicKey="9110823697697653521300390055012661231948543395071582949354990513676511311794,355406349571433434882517807762048672799069130114095471810817551582584129605"/>
   </bpmn:collaboration>
   <bpmn:process id="Process_1ucx7sx" isExecutable="false">
     <bpmn:startEvent id="StartEvent_0t5nn36">

@@ -107,6 +107,11 @@ func (circuit Circuit) Define(api frontend.API) error {
 		index := indexOf(executables, task)
 		incomingNode := task.Incoming[0].SourceRef
 		gotReady := api.And(api.Select(utils.IsEqual(api, circuit.State_new.States[index], common.STATE_READY), common.TRUE, common.FALSE), stateChanged[index])
+		changed := utils.Not(api, same[index])
+		pubKeySameX := utils.IsEqual(api, circuit.Keys.PublicKey.A.X, task.Owner.PublicKey[0])
+		pubKeySameY := utils.IsEqual(api, circuit.Keys.PublicKey.A.Y, task.Owner.PublicKey[1])
+		pubKeySame := api.And(pubKeySameX, pubKeySameY)
+		api.AssertIsEqual(api.Select(changed, pubKeySame, common.TRUE), common.TRUE)
 
 		// Stuff got completed
 		switch task.Type {
