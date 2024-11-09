@@ -13,11 +13,11 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 	graph := NewBPMNGraph()
 	graph.MessageCount = len(defs.Collab.MessageFlow)
 
-	graph.ParticpnatCount = len(defs.Collab.Participant)
-	log.Println("Participant count:", graph.ParticpnatCount)
+	graph.Participants = make([]Participant, len(defs.Collab.Participant))
+	log.Println("Participant count:", len(graph.Participants))
 
 	// Add processes and their elements (nodes)
-	for _, process := range defs.Process {
+	for i, process := range defs.Process {
 		id, participantRaw := findParticpantID(defs.Collab.Participant, process.ID)
 
 		ownerStr := strings.Split(participantRaw.PublicKey, ",")
@@ -27,6 +27,7 @@ func BuildGraph(defs *bpmn.Definitions) *BPMNGraph {
 		party.PublicKey[1].SetString(ownerStr[1], 10)
 		party.ID = id
 		party.Name = participantRaw.Name
+		graph.Participants[i] = party
 
 		// Add start events
 		for _, startEvent := range process.StartEvent {

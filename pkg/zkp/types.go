@@ -55,9 +55,9 @@ func NewZkWFProgram(modelPath string) (*ZkWFProgram, error) {
 	circuit.State_new.Variables = make([]frontend.Variable, len(graph.Variables))
 	circuit.State_curr.Messages = make([]frontend.Variable, graph.MessageCount)
 	circuit.State_new.Messages = make([]frontend.Variable, graph.MessageCount)
-	circuit.State_curr.Balances = make([]frontend.Variable, graph.ParticpnatCount)
-	circuit.State_new.Balances = make([]frontend.Variable, graph.ParticpnatCount)
-	ecryptionLen := 2 + len(graph.Variables) + graph.MessageCount + graph.ParticpnatCount
+	circuit.State_curr.Balances = make([]frontend.Variable, len(graph.Participants))
+	circuit.State_new.Balances = make([]frontend.Variable, len(graph.Participants))
+	ecryptionLen := 2 + len(graph.Variables) + graph.MessageCount + len(graph.Participants)
 	/*circuit.Keys.PrivateKey = 0
 	circuit.Keys.PublicKey.Assign(twistededwards.BN254, make([]byte, 32))*/
 	log.Println("Encryption length: ", ecryptionLen)

@@ -20,18 +20,19 @@ import (
 )
 
 type Circuit struct {
-	Model           *model.BPMNGraph
-	VariableMapping map[string]int
-	State_curr      State
-	State_new       State
-	HashCurr        frontend.Variable `gnark:",public"`
-	HashNew         frontend.Variable `gnark:",public"`
-	Keys            KeyPair
-	Signature       eddsa.Signature `gnark:",public"`
-	Key             []frontend.Variable
-	Encrypted       []frontend.Variable `gnark:",public"`
-	Deposit         frontend.Variable   `gnark:",public"`
-	Withdrawal      frontend.Variable   `gnark:",public"`
+	Model            *model.BPMNGraph
+	VariableMapping  map[string]int
+	ParticipantIndex int // Index of the participant in the participants array. It is easier to use this than the public key
+	State_curr       State
+	State_new        State
+	HashCurr         frontend.Variable `gnark:",public"`
+	HashNew          frontend.Variable `gnark:",public"`
+	Keys             KeyPair
+	Signature        eddsa.Signature `gnark:",public"`
+	Key              []frontend.Variable
+	Encrypted        []frontend.Variable `gnark:",public"`
+	Deposit          frontend.Variable   `gnark:",public"`
+	Withdrawal       frontend.Variable   `gnark:",public"`
 }
 
 type KeyPair struct {
@@ -58,7 +59,10 @@ func (circuit Circuit) Define(api frontend.API) error {
 		return fmt.Errorf("number of executable nodes must be %d, got %d", N, len(executables))
 	}
 
+	// Proof of ownership
 	proofofownership.ProofOfOwnership(api, circuit.Keys.PublicKey, circuit.Keys.PrivateKey)
+	api.AssertIsEqual(circuit.Model.Participants[circuit.ParticipantIndex].PublicKey[0], circuit.Keys.PublicKey.A.X)
+	api.AssertIsEqual(circuit.Model.Participants[circuit.ParticipantIndex].PublicKey[1], circuit.Keys.PublicKey.A.Y) // Just to make sure, that the right index is used
 
 	// Randomness check
 	api.AssertIsDifferent(circuit.State_curr.Radomness, circuit.State_new.Radomness)
@@ -101,7 +105,10 @@ func (circuit Circuit) Define(api frontend.API) error {
 	readyInTheRightTime := make([]frontend.Variable, N)
 	completedAndTokenForwarded := make([]frontend.Variable, N)
 	//Check if the task is ready and activated by a completed task
-	var paymentDone frontend.Variable = 0
+	var involvedWithPayment []frontend.Variable = make([]frontend.Variable, len(circuit.State_curr.Balances))
+	for i := 0; i < len(involvedWithPayment); i++ {
+		involvedWithPayment[i] = common.FALSE
+	}
 
 	for _, task := range executables {
 		index := indexOf(executables, task)
@@ -129,7 +136,8 @@ func (circuit Circuit) Define(api frontend.API) error {
 			newBalance = circuit.State_new.Balances[task.Owner.ID]
 			expectedBalance = api.Sub(circuit.State_curr.Balances[task.Owner.ID], task.Payment.Amount)
 			api.AssertIsEqual(api.Select(complated[index], utils.IsEqual(api, newBalance, expectedBalance), common.TRUE), common.TRUE)
-			paymentDone = api.Select(complated[index], 1, paymentDone)
+			involvedWithPayment[task.Owner.ID] = api.Select(complated[index], common.TRUE, involvedWithPayment[task.Owner.ID])
+			involvedWithPayment[task.Payment.Receiver] = api.Select(complated[index], common.TRUE, involvedWithPayment[task.Payment.Receiver])
 		}
 
 		switch incomingNode.Type {
@@ -208,18 +216,7 @@ func (circuit Circuit) Define(api frontend.API) error {
 		api.AssertIsEqual(api.Xor(readyOrStateChange, complatedOrSame), common.TRUE)
 	}
 
-	balancesSame := make([]frontend.Variable, len(circuit.State_curr.Balances))
-	i := 0
-	for key, b := range circuit.State_curr.Balances {
-		balancesSame[i] = utils.IsEqual(api, b, circuit.State_new.Balances[key])
-		i++
-	}
-	balancesSameSum := make([]frontend.Variable, len(circuit.State_curr.Balances))
-	balancesSameSum[0] = balancesSame[0]
-	for i := 1; i < len(circuit.State_curr.Balances); i++ {
-		balancesSameSum[i] = api.Add(balancesSameSum[i-1], balancesSame[i])
-	}
-	api.Println("Balances same sum: ", balancesSameSum[len(circuit.State_curr.Balances)-1])
+	checkPayments(api, circuit, involvedWithPayment)
 
 	// Check if the hash is correct
 	stateCompressed := compressedState(api, circuit.State_curr)
@@ -300,6 +297,34 @@ func compressedState(api frontend.API, state State) []frontend.Variable {
 	}
 
 	return stateCompressed
+}
+
+func checkPayments(api frontend.API, circuit Circuit, involvedWithPayment []frontend.Variable) {
+	handleDeposits(api, circuit, involvedWithPayment)
+	handleWithdrawals(api, circuit, involvedWithPayment)
+
+	for i, paymentInvolved := range involvedWithPayment {
+		same := utils.IsEqual(api, circuit.State_curr.Balances[i], circuit.State_new.Balances[i])
+		api.AssertIsEqual(api.Select(paymentInvolved, common.TRUE, same), common.TRUE)
+	}
+}
+
+func handleDeposits(api frontend.API, circuit Circuit, involvedWithPayment []frontend.Variable) {
+	noDeposit := utils.IsEqual(api, circuit.Deposit, 0)
+	depositDone := utils.Not(api, noDeposit)
+	involvedWithPayment[circuit.ParticipantIndex] = api.Select(depositDone, common.TRUE, involvedWithPayment[circuit.ParticipantIndex])
+	expectedBalance := api.Add(circuit.State_curr.Balances[circuit.ParticipantIndex], circuit.Deposit)
+	actualBalance := circuit.State_new.Balances[circuit.ParticipantIndex]
+	api.AssertIsEqual(api.Select(depositDone, utils.IsEqual(api, actualBalance, expectedBalance), common.TRUE), common.TRUE)
+}
+
+func handleWithdrawals(api frontend.API, circuit Circuit, involvedWithPayment []frontend.Variable) {
+	noWithdrawal := utils.IsEqual(api, circuit.Withdrawal, 0)
+	withdrawalDone := utils.Not(api, noWithdrawal)
+	involvedWithPayment[circuit.ParticipantIndex] = api.Select(withdrawalDone, common.TRUE, involvedWithPayment[circuit.ParticipantIndex])
+	expectedBalance := api.Sub(circuit.State_curr.Balances[circuit.ParticipantIndex], circuit.Withdrawal)
+	actualBalance := circuit.State_new.Balances[circuit.ParticipantIndex]
+	api.AssertIsEqual(api.Select(withdrawalDone, utils.IsEqual(api, actualBalance, expectedBalance), common.TRUE), common.TRUE)
 }
 
 func indexOf(nodes []*model.Node, node *model.Node) int {

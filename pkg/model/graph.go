@@ -4,12 +4,12 @@ import "math/big"
 
 // BPMNGraph struct
 type BPMNGraph struct {
-	Nodes           map[string]*Node // Map of element IDs to Nodes
-	Edges           map[string]*Edge // Map of flow IDs to Edges
-	Variables       []string
-	MessageCount    int
-	MessageMap      map[string]int
-	ParticpnatCount int
+	Nodes        map[string]*Node // Map of element IDs to Nodes
+	Edges        map[string]*Edge // Map of flow IDs to Edges
+	Variables    []string
+	MessageCount int
+	MessageMap   map[string]int
+	Participants []Participant
 }
 
 // Node struct representing a BPMN element
