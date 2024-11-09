@@ -32,8 +32,8 @@ func FillInputs(inputFilePath, keysPath string) error {
 	log.Println("HashCurr:", input.HashCurr)
 	input.HashNew = mimc.MultiMiMC5(91, compressedStateNew, bigZero).String()
 	log.Println("HashNew:", input.HashNew)
-	input.PublicKey = hex.EncodeToString(privateKey.Public().Bytes())
-	log.Println("PublicKey:", input.PublicKey)
+	//input.PublicKey = hex.EncodeToString(privateKey.Public().Bytes())
+	//log.Println("PublicKey:", input.PublicKey)
 
 	hFunc := hash.MIMC_BN254.New()
 

@@ -8,15 +8,16 @@ import (
 )
 
 var witnessCommand = &cobra.Command{
-	Use:   "witness <model> <input>",
+	Use:   "witness <model> <input> <key>",
 	Short: "Generate a witness for a given input",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.ExactArgs(3),
 	Run:   witnessCMDExecute,
 }
 
 func witnessCMDExecute(cmd *cobra.Command, args []string) {
 	modelPath := args[0]
 	inputPath := args[1]
+	keyPath := args[2]
 	fullWitnessPath, _ := cmd.Flags().GetString("full")
 	publicWitnessPath, _ := cmd.Flags().GetString("public")
 
@@ -25,7 +26,7 @@ func witnessCMDExecute(cmd *cobra.Command, args []string) {
 		log.Fatalln("Failed to create zkWF program: ", err)
 	}
 
-	err = zkwf.ComputeWitness(inputPath, fullWitnessPath, publicWitnessPath)
+	err = zkwf.ComputeWitness(inputPath, keyPath, fullWitnessPath, publicWitnessPath)
 	if err != nil {
 		log.Fatalln("Failed to compute witness: ", err)
 	}

@@ -9,17 +9,24 @@ import (
 
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
+	bn254_eddsa "github.com/consensys/gnark-crypto/ecc/bn254/twistededwards/eddsa"
 	"github.com/consensys/gnark-crypto/ecc/twistededwards"
 	"github.com/consensys/gnark/frontend"
 	"github.com/ftsrg/zkWF/pkg/circuits/statechecker"
 	"github.com/ftsrg/zkWF/pkg/crypto/keys"
 )
 
-func (zkwf *ZkWFProgram) ComputeWitness(inputPath, witnessFullPath, publicWitnessPath string) error {
+func (zkwf *ZkWFProgram) ComputeWitness(inputPath, keysPath, witnessFullPath, publicWitnessPath string) error {
 	inputs, err := loadInputs(inputPath)
 	if err != nil {
 		return fmt.Errorf("error loading inputs: %w", err)
 	}
+
+	key, err := keys.LoadKeyPair(keysPath)
+	if err != nil {
+		return fmt.Errorf("error loading keys: %w", err)
+	}
+	keyPriv := key.(*bn254_eddsa.PrivateKey)
 
 	var w statechecker.Circuit
 
@@ -28,11 +35,24 @@ func (zkwf *ZkWFProgram) ComputeWitness(inputPath, witnessFullPath, publicWitnes
 
 	w.HashCurr, _ = big.NewInt(0).SetString(inputs.HashCurr, 10)
 	w.HashNew, _ = big.NewInt(0).SetString(inputs.HashNew, 10)
-	pubKey, err := keys.HexToPublicKey(inputs.PublicKey)
-	if err != nil {
-		return fmt.Errorf("error parsing public key: %w", err)
-	}
-	w.PublicKey.Assign(twistededwards.ID(ecc.BN254), pubKey.Bytes()[:32])
+	w.Deposit = inputs.Deposit
+	w.Withdrawal = inputs.Withdraw
+
+	scalar := keys.GetPrivateKeyScaler(keyPriv)
+	scalarHigh := new(big.Int).Rsh(scalar, 128)
+	pow_2_128 := new(big.Int).Exp(big.NewInt(2), big.NewInt(128), nil)
+	fmt.Println("pow_2_128:", pow_2_128.String())
+	scalarLow := new(big.Int).Mod(scalar, pow_2_128)
+
+	w.Keys.PrivateKey[0] = scalarHigh
+	w.Keys.PrivateKey[1] = scalarLow
+	fmt.Println("Private key:", scalar.String())
+	pubKey := keyPriv.PublicKey
+	w.Keys.PublicKey.A.X = pubKey.A.X
+	w.Keys.PublicKey.A.Y = pubKey.A.Y
+
+	//w.Keys.PublicKey.Assign(twistededwards.ID(ecc.BN254), pubKey.Bytes())
+	//w.Keys.PublicKey.Assign(twistededwards.ID(ecc.BN254), pubKey.Bytes())
 
 	w.Encrypted = make([]frontend.Variable, len(inputs.Encrypted))
 	for i, e := range inputs.Encrypted {

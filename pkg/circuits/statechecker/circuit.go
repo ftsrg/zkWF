@@ -13,6 +13,7 @@ import (
 	"github.com/ftsrg/zkWF/pkg/circuits/hkdf"
 	"github.com/ftsrg/zkWF/pkg/circuits/lifecycle"
 	"github.com/ftsrg/zkWF/pkg/circuits/mimc"
+	"github.com/ftsrg/zkWF/pkg/circuits/proofofownership"
 	"github.com/ftsrg/zkWF/pkg/circuits/utils"
 	"github.com/ftsrg/zkWF/pkg/common"
 	"github.com/ftsrg/zkWF/pkg/model"
@@ -25,10 +26,17 @@ type Circuit struct {
 	State_new       State
 	HashCurr        frontend.Variable `gnark:",public"`
 	HashNew         frontend.Variable `gnark:",public"`
-	PublicKey       eddsa.PublicKey   `gnark:",public"`
-	Signature       eddsa.Signature   `gnark:",public"`
+	Keys            KeyPair
+	Signature       eddsa.Signature `gnark:",public"`
 	Key             []frontend.Variable
 	Encrypted       []frontend.Variable `gnark:",public"`
+	Deposit         frontend.Variable   `gnark:",public"`
+	Withdrawal      frontend.Variable   `gnark:",public"`
+}
+
+type KeyPair struct {
+	PublicKey  eddsa.PublicKey `gnark:",public"`
+	PrivateKey [2]frontend.Variable
 }
 
 type State struct {
@@ -49,6 +57,8 @@ func (circuit Circuit) Define(api frontend.API) error {
 	if len(executables) != N {
 		return fmt.Errorf("number of executable nodes must be %d, got %d", N, len(executables))
 	}
+
+	proofofownership.ProofOfOwnership(api, circuit.Keys.PublicKey, circuit.Keys.PrivateKey)
 
 	// Randomness check
 	api.AssertIsDifferent(circuit.State_curr.Radomness, circuit.State_new.Radomness)
@@ -234,7 +244,7 @@ func (circuit Circuit) Define(api frontend.API) error {
 	}
 
 	api.Println("Verifying signature")
-	err = eddsa.Verify(edCurve, circuit.Signature, hash2, circuit.PublicKey, &mimc)
+	err = eddsa.Verify(edCurve, circuit.Signature, hash2, circuit.Keys.PublicKey, &mimc)
 	if err != nil {
 		return fmt.Errorf("failed to verify signature: %v", err)
 	}

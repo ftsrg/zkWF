@@ -36,6 +36,9 @@ func GenerateKeyPair(keyPath string) error {
 
 	publicKeyHex := hex.EncodeToString(publicKey.Bytes())
 
+	scalar := GetPrivateKeyScaler(privateKey)
+	fmt.Println("Private key scalar:", scalar.String())
+
 	// Save the key pair to a file
 	keyPair := KeyPair{
 		PrivateKey: privateKeyHex,
@@ -108,18 +111,18 @@ func LoadKeyPair(keyPath string) (signature.Signer, error) {
 	return privateKey, nil
 }
 
-func getPrivateKeyScaler(privateKey *bn254_eddsa.PrivateKey) *big.Int {
+func GetPrivateKeyScaler(privateKey *bn254_eddsa.PrivateKey) *big.Int {
 	bytes := privateKey.Bytes()
 
 	var buf [sizeFr]byte
 	subtle.ConstantTimeCopy(1, buf[:], bytes[sizeFr:2*sizeFr])
-	var bScalar big.Int
+	bScalar := new(big.Int)
 	bScalar.SetBytes(buf[:])
 
-	return &bScalar
+	return bScalar
 }
 
 func DiffieHellmanStep(privateKey *bn254_eddsa.PrivateKey, point twistededwards.PointAffine) *twistededwards.PointAffine {
-	scalar := getPrivateKeyScaler(privateKey)
+	scalar := GetPrivateKeyScaler(privateKey)
 	return point.ScalarMultiplication(&point, scalar)
 }

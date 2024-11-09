@@ -31,10 +31,11 @@ type Inputs struct {
 	State_new  State
 	HashCurr   string
 	HashNew    string
-	PublicKey  string
 	Signature  string
 	Encrypted  []big.Int
 	Key        []big.Int
+	Deposit    big.Int
+	Withdraw   big.Int
 }
 
 func NewZkWFProgram(modelPath string) (*ZkWFProgram, error) {
@@ -57,6 +58,8 @@ func NewZkWFProgram(modelPath string) (*ZkWFProgram, error) {
 	circuit.State_curr.Balances = make([]frontend.Variable, graph.ParticpnatCount)
 	circuit.State_new.Balances = make([]frontend.Variable, graph.ParticpnatCount)
 	ecryptionLen := 2 + len(graph.Variables) + graph.MessageCount + graph.ParticpnatCount
+	/*circuit.Keys.PrivateKey = 0
+	circuit.Keys.PublicKey.Assign(twistededwards.BN254, make([]byte, 32))*/
 	log.Println("Encryption length: ", ecryptionLen)
 	circuit.Encrypted = make([]frontend.Variable, ecryptionLen)
 	circuit.Key = make([]frontend.Variable, ecryptionLen/2)
