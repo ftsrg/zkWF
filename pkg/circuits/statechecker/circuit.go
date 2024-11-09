@@ -266,7 +266,7 @@ func (circuit Circuit) Define(api frontend.API) error {
 
 	api.Println("Key new: ", key_new[0])
 
-	encrypted := gmimc.Encrypt(api, stateCompressed, key_new, gmimc.GetGMiMCRounds(len(stateCompressed)))
+	encrypted := gmimc.Encrypt(api, stateCompressed_new, key_new, gmimc.GetGMiMCRounds(len(stateCompressed)))
 	for i, e := range encrypted {
 		api.Println("Encrypted: ", i, " ", e)
 		api.AssertIsEqual(e, circuit.Encrypted[i])
