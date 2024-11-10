@@ -6,3 +6,4 @@ contract.sol
 *.bin
 bin/*
 build/*
+*key*.json
