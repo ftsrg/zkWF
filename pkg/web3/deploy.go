@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	"github.com/ftsrg/zkWF/pkg/contracts/ecdh"
+	"github.com/ftsrg/zkWF/pkg/contracts/model"
 )
 
 // DeployEcdhContract deploys the ECDH contract with predefined public keys
@@ -34,6 +35,27 @@ func DeployEcdhContract(url, keyPath string, chainID *big.Int, publicKeys []stri
 	}
 
 	address, tx, _, err := ecdh.DeployEcdh(auth, client, keys)
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("Contract deployed! Address: %s, Transaction Hash: %s\n", address.Hex(), tx.Hash().Hex())
+	return address.Hex(), nil
+}
+
+func DeployModelContract(url, keyPath string, chainID *big.Int, initialHash *big.Int, initialState []*big.Int) (string, error) {
+	// Connect to the local Ethereum node
+	client, err := CreateConnection(url)
+	if err != nil {
+		return "", fmt.Errorf("failed to connect to the Ethereum client: %w", err)
+	}
+
+	auth, err := CreateAuth(client, chainID, keyPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create auth: %w", err)
+	}
+
+	address, tx, _, err := model.DeployModel(auth, client, initialHash, initialState)
 	if err != nil {
 		return "", err
 	}

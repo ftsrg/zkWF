@@ -21,11 +21,12 @@ import "../contract.sol";
 
 contract Model is PlonkVerifier {
 
-     uint256 constant encrypted_state_len = 4;
+    uint256 constant encrypted_state_len = 4;
     uint256 hash;
-    uint256[encrypted_state_len] state;
+    uint256[] state;
 
-    constructor(uint256 initial_hash, uint256[encrypted_state_len] memory initial_state) {
+    constructor(uint256 initial_hash, uint256[] memory initial_state) {
+        require(initial_state.length == encrypted_state_len);
         hash = initial_hash;
         state = initial_state;
     }
@@ -34,13 +35,14 @@ contract Model is PlonkVerifier {
         return hash;
     }
 
-    function getCurrentState() public view returns (uint256[encrypted_state_len] memory) {
+    function getCurrentState() public view returns (uint256[] memory) {
         return state;
     }
 
     function update(bytes calldata proof, uint256[] calldata public_inputs) public payable {
        require(public_inputs[0] == hash);
        require(public_inputs[public_inputs.length-2] == msg.value);
+       require(7 + encrypted_state_len+2 <= public_inputs.length );
 
        bool verified = Verify(proof, public_inputs);
        
