@@ -1,7 +1,6 @@
 package hkdf
 
 import (
-	"fmt"
 	"math/big"
 
 	"github.com/ftsrg/zkWF/pkg/crypto/hmac"
@@ -33,9 +32,6 @@ func expand(key *big.Int, info []*big.Int, length int) []*big.Int {
 		copy(hashInput[:], info)
 		hashInput[len(info)] = t
 		hashInput[len(info)+1] = big.NewInt(int64(i))
-		for j := 0; j < len(hashInput); j++ {
-			fmt.Println(" hashInput [j]", j, hashInput[j])
-		}
 		t = hash(prk, hashInput)
 		okm[i] = t
 	}

@@ -104,3 +104,23 @@ func compressState(state State) []*big.Int {
 
 	return compressedState
 }
+
+func Decompress(state *big.Int) []uint64 {
+	// Initialize the decompressed state array
+	var decompressed, result []uint64
+	// Decompress the states from the field element
+
+	for state.Cmp(big.NewInt(16)) >= 0 || state.Cmp(big.NewInt(0)) > 0 {
+		// Extract the next state from the compressed field element
+		decompressedBig := new(big.Int).Mod(state, big.NewInt(16))
+		decompressed = append(decompressed, decompressedBig.Uint64())
+		state = new(big.Int).Div(state, big.NewInt(16))
+	}
+
+	// Reverse the decompressed state array to get the original order of states
+	for i := len(decompressed) - 1; i >= 0; i-- {
+		result = append(result, decompressed[i])
+	}
+
+	return result
+}

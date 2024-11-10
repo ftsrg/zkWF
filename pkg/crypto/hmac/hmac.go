@@ -1,7 +1,6 @@
 package hmac
 
 import (
-	"fmt"
 	"math/big"
 
 	"github.com/ftsrg/zkWF/pkg/crypto/mimc"
@@ -11,9 +10,8 @@ const BLOCK_SIZE = 64
 
 func Hmac(key, message []*big.Int) *big.Int {
 	innerHash := innerHash(key, message)
-	fmt.Println("Inned hash:", innerHash.String())
+
 	outerHash := outerHash(key, innerHash)
-	fmt.Println("Outer hash:", outerHash.String())
 
 	return outerHash
 }
@@ -23,10 +21,6 @@ func innerHash(key, message []*big.Int) *big.Int {
 	for _, k := range key {
 		keyFieldDecomposed := reverseBytes(k.Bytes()) //utils.DecomposeToBytes(api, k)
 		keyBytes = append(keyBytes, keyFieldDecomposed...)
-	}
-
-	for i, keyByte := range keyBytes {
-		fmt.Println("KeyByte[i]", i, keyByte)
 	}
 
 	expandedKey := make([]byte, BLOCK_SIZE)
