@@ -21,12 +21,12 @@ import "../contract.sol";
 
 contract Model is PlonkVerifier {
 
-    uint256 constant encrypted_state_len = 4;
+    uint256 encrypted_state_len = 4;
     uint256 hash;
     uint256[] state;
 
     constructor(uint256 initial_hash, uint256[] memory initial_state) {
-        require(initial_state.length == encrypted_state_len);
+        encrypted_state_len = initial_state.length;
         hash = initial_hash;
         state = initial_state;
     }
