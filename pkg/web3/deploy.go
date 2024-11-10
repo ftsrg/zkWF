@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ftsrg/zkWF/pkg/contracts/ecdh"
 	"github.com/ftsrg/zkWF/pkg/contracts/model"
 )
@@ -55,7 +56,17 @@ func DeployModelContract(url, keyPath string, chainID *big.Int, initialHash *big
 		return "", fmt.Errorf("failed to create auth: %w", err)
 	}
 
-	address, tx, _, err := model.DeployModel(auth, client, initialHash, initialState)
+	cotractBin, err := compileContract()
+	if err != nil {
+		return "", fmt.Errorf("failed to compile contract: %w", err)
+	}
+
+	abi, err := model.ModelMetaData.GetAbi()
+	if err != nil {
+		return "", fmt.Errorf("failed to get contract abi: %w", err)
+	}
+
+	address, tx, _, err := bind.DeployContract(auth, *abi, cotractBin, client, initialHash, initialState)
 	if err != nil {
 		return "", err
 	}

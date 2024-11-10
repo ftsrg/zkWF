@@ -22,7 +22,7 @@ func Prove(r1csPath, pkPath, witnessPath, proofPath string) error {
 		return fmt.Errorf("error loading proving key: %w", err)
 	}
 
-	witnessFull, err := loadWitness(witnessPath)
+	witnessFull, err := LoadWitness(witnessPath)
 	if err != nil {
 		return fmt.Errorf("error loading witness: %w", err)
 	}
@@ -66,7 +66,7 @@ func loadProvingKey(path string) (plonk.ProvingKey, error) {
 	return pk, nil
 }
 
-func loadWitness(path string) (witness.Witness, error) {
+func LoadWitness(path string) (witness.Witness, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening witness file: %w", err)

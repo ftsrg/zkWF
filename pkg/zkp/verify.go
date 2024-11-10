@@ -27,7 +27,7 @@ func VerifyProof(proofPath, verificationKeyPath, witnessPath string) error {
 		return fmt.Errorf("failed to load verification key: %w", err)
 	}
 
-	witness, err := loadWitness(witnessPath)
+	witness, err := LoadWitness(witnessPath)
 	if err != nil {
 		return fmt.Errorf("failed to load witness: %w", err)
 	}

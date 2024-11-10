@@ -24,7 +24,7 @@ const (
 
 func main() {
 	for i := 0; i < participants; i++ {
-		err := keys.GenerateKeyPair(fmt.Sprintf("key%d.json", i))
+		err := keys.GenerateKeyEthPair(fmt.Sprintf("key%d.json", i))
 		if err != nil {
 			panic(err)
 		}
@@ -58,7 +58,7 @@ func main() {
 		pubKeyStrs[i] = hex.EncodeToString(privateKeys[i].PublicKey.Bytes())
 	}
 
-	contractAddress, err := web3.DeployContract(pubKeyStrs)
+	contractAddress, err := web3.DeployEcdhContract(pubKeyStrs)
 	if err != nil {
 		panic(err)
 	}
