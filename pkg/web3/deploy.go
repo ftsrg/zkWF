@@ -3,6 +3,7 @@ package web3
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math/big"
 
 	"github.com/ftsrg/zkWF/pkg/contracts/ecdh"
@@ -37,6 +38,6 @@ func DeployEcdhContract(url, keyPath string, chainID *big.Int, publicKeys []stri
 		return "", err
 	}
 
-	fmt.Printf("Contract deployed! Address: %s, Transaction Hash: %s\n", address.Hex(), tx.Hash().Hex())
+	log.Printf("Contract deployed! Address: %s, Transaction Hash: %s\n", address.Hex(), tx.Hash().Hex())
 	return address.Hex(), nil
 }

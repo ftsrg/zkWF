@@ -28,11 +28,10 @@ func deployEcdhCommandFunc(cmd *cobra.Command, args []string) error {
 		log.Fatalln("No public keys provided")
 	}
 
-	address, err := web3.DeployEcdhContract(nodeUrl, keyPath, chainId, publicKeys)
+	_, err := web3.DeployEcdhContract(nodeUrl, keyPath, chainId, publicKeys)
 	if err != nil {
 		return err
 	}
 
-	cmd.Printf("Contract deployed! Address: %s\n", address)
 	return nil
 }
