@@ -14,6 +14,13 @@ var setupCommand = &cobra.Command{
 	Run:   setupCMDExecute,
 }
 
+func init() {
+	setupCommand.PersistentFlags().StringP("pk", "p", "pk.bin", "Output file for the proving key")
+	setupCommand.PersistentFlags().StringP("vk", "v", "vk.bin", "Output file for the verification key")
+	setupCommand.PersistentFlags().StringP("contract", "c", "contract.sol", "Output file for the Solidity contract")
+	rootCMD.AddCommand(setupCommand)
+}
+
 func setupCMDExecute(cmd *cobra.Command, args []string) {
 	circuitPath := args[0]
 	pkPath, _ := cmd.Flags().GetString("pk")

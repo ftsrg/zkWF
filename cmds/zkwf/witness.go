@@ -14,6 +14,12 @@ var witnessCommand = &cobra.Command{
 	Run:   witnessCMDExecute,
 }
 
+func init() {
+	witnessCommand.PersistentFlags().StringP("public", "p", "public.wtns", "Output file for the public witness")
+	witnessCommand.PersistentFlags().StringP("full", "f", "full.wtns", "Output file for the full witness")
+	rootCMD.AddCommand(witnessCommand)
+}
+
 func witnessCMDExecute(cmd *cobra.Command, args []string) {
 	modelPath := args[0]
 	inputPath := args[1]

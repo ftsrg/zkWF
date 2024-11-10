@@ -14,6 +14,11 @@ var compileCommand = &cobra.Command{
 	Run:   compileCMDExecute,
 }
 
+func init() {
+	compileCommand.PersistentFlags().StringP("output", "o", "circuit.r1cs", "Output file for the compiled circuit")
+	rootCMD.AddCommand(compileCommand)
+}
+
 func compileCMDExecute(cmd *cobra.Command, args []string) {
 	modelPath := args[0]
 	outputFlag, _ := cmd.Flags().GetString("output")

@@ -14,23 +14,6 @@ var rootCMD = &cobra.Command{
 	Short: "zkWF is a zero-knowledge workflow system",
 }
 
-func init() {
-	compileCommand.PersistentFlags().StringP("output", "o", "circuit.r1cs", "Output file for the compiled circuit")
-	rootCMD.AddCommand(compileCommand)
-
-	witnessCommand.PersistentFlags().StringP("public", "p", "public.wtns", "Output file for the public witness")
-	witnessCommand.PersistentFlags().StringP("full", "f", "full.wtns", "Output file for the full witness")
-	rootCMD.AddCommand(witnessCommand)
-
-	setupCommand.PersistentFlags().StringP("pk", "p", "pk.bin", "Output file for the proving key")
-	setupCommand.PersistentFlags().StringP("vk", "v", "vk.bin", "Output file for the verification key")
-	setupCommand.PersistentFlags().StringP("contract", "c", "contract.sol", "Output file for the Solidity contract")
-	rootCMD.AddCommand(setupCommand)
-
-	proveCommand.PersistentFlags().StringP("output", "o", "proof.bin", "Output file for the proof")
-	rootCMD.AddCommand(proveCommand)
-}
-
 // BFS traverses the BPMN graph starting from a StartEvent using Breadth-First Search
 func BFS(graph *model.BPMNGraph, startNodeID string) {
 	// Initialize a queue (FIFO) for BFS and a visited map

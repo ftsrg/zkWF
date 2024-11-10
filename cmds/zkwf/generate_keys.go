@@ -15,14 +15,14 @@ var generateKeyCommand = &cobra.Command{
 }
 
 func init() {
-	generateKeyCommand.PersistentFlags().StringP("output", "o", "keys.json", "Output file path")
+	generateKeyCommand.PersistentFlags().StringP("output", "o", "key.json", "Output file path")
 	rootCMD.AddCommand(generateKeyCommand)
 }
 
 func generateKeyCommandFunc(cmd *cobra.Command, args []string) error {
 	outputFile, _ := cmd.Flags().GetString("output")
 
-	err := keys.GenerateKeyPair(outputFile)
+	err := keys.GenerateKeyEthPair(outputFile)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %w", err)
 	}

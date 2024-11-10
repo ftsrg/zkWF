@@ -14,6 +14,11 @@ var proveCommand = &cobra.Command{
 	Run:   proveCMDExecute,
 }
 
+func init() {
+	proveCommand.PersistentFlags().StringP("output", "o", "proof.bin", "Output file for the proof")
+	rootCMD.AddCommand(proveCommand)
+}
+
 func proveCMDExecute(cmd *cobra.Command, args []string) {
 	circuitPath := args[0]
 	pkPath := args[1]
