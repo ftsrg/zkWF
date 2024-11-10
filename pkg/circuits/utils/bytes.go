@@ -8,6 +8,7 @@ import (
 )
 
 func DecomposeToBytes(api frontend.API, element frontend.Variable) []frontend.Variable {
+	pows := []int{1, 2, 4, 8, 16, 32, 64, 128}
 	// BN254 field elements fit into 32 bytes (256 bits).
 	numBytes := 32
 	bytes := make([]frontend.Variable, numBytes)
@@ -16,7 +17,7 @@ func DecomposeToBytes(api frontend.API, element frontend.Variable) []frontend.Va
 		bytes[i] = 0
 		for j := 0; j < 8; j++ {
 			if i*8+j < 254 {
-				bytes[i] = api.Add(bytes[i], api.Mul(bits[i*8+j], 8))
+				bytes[i] = api.Add(bytes[i], api.Mul(bits[i*8+j], pows[j]))
 			}
 		}
 	}
