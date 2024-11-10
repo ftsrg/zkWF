@@ -6,12 +6,17 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ftsrg/zkWF/cmds/zkwf/web3"
 	"github.com/ftsrg/zkWF/pkg/model"
 )
 
 var rootCMD = &cobra.Command{
 	Use:   "zkwf",
 	Short: "zkWF is a zero-knowledge workflow system",
+}
+
+func init() {
+	rootCMD.AddCommand(web3.Web3Command)
 }
 
 // BFS traverses the BPMN graph starting from a StartEvent using Breadth-First Search
