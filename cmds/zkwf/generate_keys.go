@@ -22,7 +22,7 @@ func init() {
 func generateKeyCommandFunc(cmd *cobra.Command, args []string) error {
 	outputFile, _ := cmd.Flags().GetString("output")
 
-	err := keys.GenerateKeyEthPair(outputFile)
+	err := keys.GenerateKeyPair(outputFile)
 	if err != nil {
 		return fmt.Errorf("failed to generate key: %w", err)
 	}
