@@ -20,7 +20,7 @@ type ZkWFProgram struct {
 
 type State struct {
 	States    []big.Int
-	Variables map[string]big.Int
+	Variables map[string]*big.Int
 	Messages  map[string]string
 	Balances  map[string]string
 	Radomness string

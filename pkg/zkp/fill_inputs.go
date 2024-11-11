@@ -1,6 +1,7 @@
 package zkp
 
 import (
+	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,8 @@ import (
 	"os"
 
 	"github.com/consensys/gnark-crypto/hash"
+	"github.com/ftsrg/zkWF/pkg/crypto/gmimc"
+	"github.com/ftsrg/zkWF/pkg/crypto/hkdf"
 	"github.com/ftsrg/zkWF/pkg/crypto/keys"
 	"github.com/ftsrg/zkWF/pkg/crypto/mimc"
 )
@@ -22,6 +25,16 @@ func FillInputs(inputFilePath, keysPath string) error {
 	input, err := loadInputs(inputFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to load inputs: %w", err)
+	}
+
+	if input.State_curr.Radomness == "0" {
+		input.State_curr.Radomness = generateSalt().String()
+		fmt.Println("Randomness:", input.State_curr.Radomness)
+	}
+
+	if input.State_new.Radomness == "0" {
+		input.State_new.Radomness = generateSalt().String()
+		fmt.Println("Randomness:", input.State_new.Radomness)
 	}
 
 	compressedStateCurr := compressState(input.State_curr)
@@ -46,6 +59,19 @@ func FillInputs(inputFilePath, keysPath string) error {
 		return fmt.Errorf("failed to sign: %w", err)
 	}
 	log.Println("Signature:", hex.EncodeToString(signature))
+	input.Signature = hex.EncodeToString(signature)
+
+	salt := []*big.Int{big.NewInt(0)}
+	ikm := []*big.Int{&input.Key[0]}
+
+	info := []*big.Int{compressedStateCurr[1], compressedStateNew[1]}
+
+	res := hkdf.Hkdf(salt, ikm, info, 2)
+
+	encrypted := gmimc.EncryptBig(compressedStateNew, res, gmimc.GetGMiMCRounds(len(compressedStateCurr)))
+	for i, enc := range encrypted {
+		input.Encrypted[i] = *enc
+	}
 
 	jsonBytes, err := json.MarshalIndent(input, "", "  ")
 	if err != nil {
@@ -58,6 +84,18 @@ func FillInputs(inputFilePath, keysPath string) error {
 	}
 
 	return nil
+}
+
+func generateSalt() *big.Int {
+	// 32 random bytes
+	random32 := make([]byte, 31)
+	rand.Read(random32)
+	//random32[31] &= 0x03 // 254 bits max
+
+	salt := new(big.Int)
+	salt.SetBytes(random32)
+
+	return salt
 }
 
 func compressState(state State) []*big.Int {
@@ -88,7 +126,7 @@ func compressState(state State) []*big.Int {
 	compressedState[1], _ = new(big.Int).SetString(state.Radomness, 10)
 	i := 2
 	for _, v := range state.Variables {
-		compressedState[i] = &v
+		compressedState[i] = v
 		i++
 	}
 
