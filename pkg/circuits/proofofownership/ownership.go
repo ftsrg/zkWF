@@ -34,10 +34,10 @@ func ProofOfOwnership(api frontend.API, publicKey eddsa.PublicKey, privKey [2]fr
 
 	edCurve.AssertIsOnCurve(pointB)
 
-	api.AssertIsEqual(pointA.X, pointB.X)
 	api.Println("X coordinates are: ", pointA.X, pointB.X)
-	api.AssertIsEqual(pointA.Y, pointB.Y)
+	api.AssertIsEqual(pointA.X, pointB.X)
 	api.Println("Y coordinates are: ", pointA.Y, pointB.Y)
+	api.AssertIsEqual(pointA.Y, pointB.Y)
 
 	return nil
 }

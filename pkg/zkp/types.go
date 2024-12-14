@@ -61,8 +61,8 @@ func NewZkWFProgram(modelPath string) (*ZkWFProgram, error) {
 	/*circuit.Keys.PrivateKey = 0
 	circuit.Keys.PublicKey.Assign(twistededwards.BN254, make([]byte, 32))*/
 	log.Println("Encryption length: ", ecryptionLen)
-	circuit.Encrypted = make([]frontend.Variable, ecryptionLen)
-	circuit.Key = make([]frontend.Variable, ecryptionLen/2)
+	/*circuit.Encrypted = make([]frontend.Variable, ecryptionLen)
+	circuit.Key = make([]frontend.Variable, ecryptionLen/2)*/
 
 	return &ZkWFProgram{
 		Model:   graph,

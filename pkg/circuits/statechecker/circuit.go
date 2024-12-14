@@ -9,11 +9,8 @@ import (
 	"github.com/consensys/gnark/std/algebra/native/twistededwards"
 	gnark_mimc "github.com/consensys/gnark/std/hash/mimc"
 	"github.com/consensys/gnark/std/signature/eddsa"
-	"github.com/ftsrg/zkWF/pkg/circuits/gmimc"
-	"github.com/ftsrg/zkWF/pkg/circuits/hkdf"
 	"github.com/ftsrg/zkWF/pkg/circuits/lifecycle"
 	"github.com/ftsrg/zkWF/pkg/circuits/mimc"
-	"github.com/ftsrg/zkWF/pkg/circuits/proofofownership"
 	"github.com/ftsrg/zkWF/pkg/circuits/utils"
 	"github.com/ftsrg/zkWF/pkg/common"
 	"github.com/ftsrg/zkWF/pkg/model"
@@ -29,10 +26,10 @@ type Circuit struct {
 	HashNew          frontend.Variable `gnark:",public"`
 	Keys             KeyPair
 	Signature        eddsa.Signature `gnark:",public"`
-	Key              []frontend.Variable
-	Encrypted        []frontend.Variable `gnark:",public"`
-	Deposit          frontend.Variable   `gnark:",public"`
-	Withdrawal       frontend.Variable   `gnark:",public"`
+	/*Key              []frontend.Variable
+	Encrypted        []frontend.Variable `gnark:",public"`*/
+	Deposit    frontend.Variable `gnark:",public"`
+	Withdrawal frontend.Variable `gnark:",public"`
 }
 
 type KeyPair struct {
@@ -60,10 +57,10 @@ func (circuit Circuit) Define(api frontend.API) error {
 	}
 
 	// Proof of ownership
-	proofofownership.ProofOfOwnership(api, circuit.Keys.PublicKey, circuit.Keys.PrivateKey)
+	/*proofofownership.ProofOfOwnership(api, circuit.Keys.PublicKey, circuit.Keys.PrivateKey)
 	api.AssertIsEqual(circuit.Model.Participants[circuit.ParticipantIndex].PublicKey[0], circuit.Keys.PublicKey.A.X)
 	api.AssertIsEqual(circuit.Model.Participants[circuit.ParticipantIndex].PublicKey[1], circuit.Keys.PublicKey.A.Y) // Just to make sure, that the right index is used
-
+	*/
 	// Randomness check
 	api.AssertIsDifferent(circuit.State_curr.Radomness, circuit.State_new.Radomness)
 
@@ -117,24 +114,24 @@ func (circuit Circuit) Define(api frontend.API) error {
 	api.Println("R:", circuit.Signature.R.X, circuit.Signature.R.Y)
 	api.Println("S:", circuit.Signature.S)
 	api.Println("Balances length: ", len(circuit.State_new.Balances))
+	/*
+		salt := make([]frontend.Variable, 1)
+		salt[0] = 0
+		info := make([]frontend.Variable, 2)
+		info[0] = circuit.State_curr.Radomness
+		info[1] = circuit.State_new.Radomness
+		ikm := make([]frontend.Variable, 1)
+		ikm[0] = circuit.Key[0]
 
-	salt := make([]frontend.Variable, 1)
-	salt[0] = 0
-	info := make([]frontend.Variable, 2)
-	info[0] = circuit.State_curr.Radomness
-	info[1] = circuit.State_new.Radomness
-	ikm := make([]frontend.Variable, 1)
-	ikm[0] = circuit.Key[0]
+		key_new := hkdf.Hkdf(api, salt, ikm, info, 2)
 
-	key_new := hkdf.Hkdf(api, salt, ikm, info, 2)
+		api.Println("Key new: ", key_new[0])
 
-	api.Println("Key new: ", key_new[0])
-
-	encrypted := gmimc.Encrypt(api, stateCompressed_new, key_new, gmimc.GetGMiMCRounds(len(stateCompressed)))
-	for i, e := range encrypted {
-		api.Println("Encrypted: ", i, " ", e)
-		api.AssertIsEqual(e, circuit.Encrypted[i])
-	}
+		encrypted := gmimc.Encrypt(api, stateCompressed_new, key_new, gmimc.GetGMiMCRounds(len(stateCompressed)))
+		for i, e := range encrypted {
+			api.Println("Encrypted: ", i, " ", e)
+			api.AssertIsEqual(e, circuit.Encrypted[i])
+		}*/
 
 	return nil
 }

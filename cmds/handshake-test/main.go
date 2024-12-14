@@ -58,7 +58,7 @@ func main() {
 		pubKeyStrs[i] = hex.EncodeToString(privateKeys[i].PublicKey.Bytes())
 	}
 
-	contractAddress, err := web3.DeployEcdhContract(pubKeyStrs)
+	contractAddress, err := web3.DeployEcdhContract("http://localhost:8545", "eth_key.json", big.NewInt(31337), pubKeyStrs)
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +109,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("Secret %d: %s\n", i, hex.EncodeToString(secret))
+			secretBig := new(big.Int)
+			secretBig.SetString(hex.EncodeToString(secret), 16)
+
+			fmt.Printf("Secret %d: %s\n", i, secretBig.String())
 		}(i, privKey)
 	}
 
