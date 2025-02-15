@@ -115,16 +115,16 @@ func setupInputs(w *statechecker.Circuit, inputs *Inputs, keyPriv *bn254_eddsa.P
 
 	index := findParticipantIndex(zkwf.Model.Participants, [2]*big.Int(aBig))
 	w.ParticipantIndex = index
-	/*
-		w.Encrypted = make([]frontend.Variable, len(inputs.Encrypted))
-		for i, e := range inputs.Encrypted {
-			w.Encrypted[i] = e
-		}
 
-		w.Key = make([]frontend.Variable, len(inputs.Key))
-		for i, k := range inputs.Key {
-			w.Key[i] = k
-		}*/
+	w.Encrypted = make([]frontend.Variable, len(inputs.Encrypted))
+	for i, e := range inputs.Encrypted {
+		w.Encrypted[i] = e
+	}
+
+	w.Key = make([]frontend.Variable, len(inputs.Key))
+	for i, k := range inputs.Key {
+		w.Key[i] = k
+	}
 
 	sigBytes, err := hex.DecodeString(inputs.Signature)
 	if err != nil {
