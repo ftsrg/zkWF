@@ -12,6 +12,7 @@ import (
 	bn254_eddsa "github.com/consensys/gnark-crypto/ecc/bn254/twistededwards/eddsa"
 	"github.com/consensys/gnark-crypto/ecc/twistededwards"
 	"github.com/consensys/gnark/frontend"
+	"github.com/consensys/gnark/test"
 	"github.com/ftsrg/zkWF/pkg/circuits/statechecker"
 	"github.com/ftsrg/zkWF/pkg/crypto/keys"
 	"github.com/ftsrg/zkWF/pkg/model"
@@ -34,6 +35,11 @@ func (zkwf *ZkWFProgram) ComputeWitness(inputPath, keysPath, witnessFullPath, pu
 	err = setupInputs(&w, inputs, keyPriv, zkwf)
 	if err != nil {
 		return fmt.Errorf("error setting up inputs: %w", err)
+	}
+
+	err = test.IsSolved(zkwf.Circuit, w, ecc.BN254.ScalarField())
+	if err != nil {
+		return fmt.Errorf("error checking if solved: %w", err)
 	}
 
 	log.Println("Creating witness")
