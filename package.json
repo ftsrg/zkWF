@@ -3,5 +3,8 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "hardhat": "^2.22.15"
+  },
+  "dependencies": {
+    "bpmn-engine": "^23.0.2"
   }
 }
