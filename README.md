@@ -39,7 +39,7 @@ The project is divided into the following components:
 1. Clone the repository
 
 ```bash
-git clone -b zkwf2 https://github.com/zkWF/zkWF2.git
+git clone https://github.com/ftsrg/zkWF.git
 ```
 
 2. Compile the zkWF command line interface
@@ -93,19 +93,21 @@ Flags:
 0. Generate a new key pair
 
 ```bash
-zkWF generate-key
+./bin/zkWF generate-key
 ```
+
+This will generate a new key pair and save it to the `keys.json` file. You will need to put the public key into the model using the BPMN editor. The public key shall be provided as follows: `X,Y` where `X` is the x-coordinate of the point on the curve and `Y` is the y-coordinate of the point on the curve.
 
 1. Compile the BPMN model into a zero-knowledge circuit
 
 ```bash
-zkWF compile -f models/t1_zkp.bpmn
+./bin/zkWF compile models/t1_zkp.bpmn
 ```
 
 2. Setup the zero-knowledge circuit
 
 ```bash
-zkWF setup circuit.r1cs
+./bin/zkWF setup circuit.r1cs
 ```
 
 3. Fill the inputs for the zero-knowledge circuit
@@ -113,7 +115,7 @@ zkWF setup circuit.r1cs
 First, prepare the inputs manually in the `inputs.json` file. Then, fill the inputs for the zero-knowledge circuit
 
 ```bash
-zkWF fill-inputs inputs.json keys.json
+./bin/zkWF fill-inputs inputs.json keys.json
 ```
 
 This will fill out the hash, randomnness, public key, and signature inputs for the circuit.
@@ -121,11 +123,11 @@ This will fill out the hash, randomnness, public key, and signature inputs for t
 4. Generate a witness for the given input
 
 ```bash
-zkfw witness models/t1_zkp.bpmn inputs.json
+./bin/zkWF witness models/t1_zkp.bpmn inputs.json keys.json
 ```
 
 5. Prove the statement using the given circuit and witness
 
 ```bash
-zkWF prove circuit.r1cs pk.bin full.wtns
+./bin/zkWF prove circuit.r1cs pk.bin full.wtns
 ```
