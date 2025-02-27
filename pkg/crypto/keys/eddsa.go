@@ -20,8 +20,12 @@ const (
 )
 
 type KeyPair struct {
-	PrivateKey string
-	PublicKey  string
+	PrivateKey     string
+	PublicKey      string
+	PublicKeyPoint struct {
+		X string
+		Y string
+	}
 }
 
 func GenerateKeyPair(keyPath string) error {
@@ -34,6 +38,9 @@ func GenerateKeyPair(keyPath string) error {
 	privateKeyHex := hex.EncodeToString(privateKey.Bytes())
 	publicKey := privateKey.Public()
 
+	publicKey_bn254 := publicKey.(*bn254_eddsa.PublicKey)
+	fmt.Println("Public key:", publicKey_bn254.A.X.String(), publicKey_bn254.A.Y.String())
+
 	publicKeyHex := hex.EncodeToString(publicKey.Bytes())
 
 	scalar := GetPrivateKeyScaler(privateKey)
@@ -43,6 +50,13 @@ func GenerateKeyPair(keyPath string) error {
 	keyPair := KeyPair{
 		PrivateKey: privateKeyHex,
 		PublicKey:  publicKeyHex,
+		PublicKeyPoint: struct {
+			X string
+			Y string
+		}{
+			X: publicKey_bn254.A.X.String(),
+			Y: publicKey_bn254.A.Y.String(),
+		},
 	}
 
 	jsonBytes, err := json.Marshal(keyPair)
