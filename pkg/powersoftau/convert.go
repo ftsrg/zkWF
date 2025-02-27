@@ -2,14 +2,40 @@ package powersoftau
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math"
+	"net/http"
 	"os"
 
 	kzg_bn254 "github.com/consensys/gnark-crypto/ecc/bn254/kzg"
 	"github.com/consensys/gnark-crypto/kzg"
 	gnark_ptau "github.com/mdehoog/gnark-ptau"
 )
+
+func downloadFile(power int) error {
+
+	tau := powersoftau[power]
+
+	file, err := os.Create(fmt.Sprintf("powersOfTau28_hez_final_%v.ptau", power))
+	if err != nil {
+		return fmt.Errorf("error creating file: %v", err)
+	}
+	defer file.Close()
+
+	resp, err := http.Get(tau.URL)
+	if err != nil {
+		return fmt.Errorf("error downloading file: %v", err)
+	}
+	defer resp.Body.Close()
+
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return fmt.Errorf("error copying file: %v", err)
+	}
+
+	return nil
+}
 
 func GetPowerOfTauParams(n uint64) (kzg.SRS, kzg.SRS, error) {
 	sqrtn := math.Log2(float64(n))
@@ -18,12 +44,15 @@ func GetPowerOfTauParams(n uint64) (kzg.SRS, kzg.SRS, error) {
 
 	filename := fmt.Sprintf("powersOfTau28_hez_final_%v.ptau", sqrtn)
 	_, err := os.Stat(filename)
-	if err != nil {
-		log.Fatalf("Error checking existance of %s: %v\n"+
-			"Refer to doc.go for instructions on how to download the file.",
-			filename, err)
-		return nil, nil, err
+	if os.IsNotExist(err) {
+		err := downloadFile(int(sqrtn))
+		if err != nil {
+			log.Fatalf("error downloading file: %v", err)
+		}
+	} else if err != nil {
+		log.Fatalf("error checking if %s exists: %v", filename, err)
 	}
+
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatalf("error opening %s: %v", filename, err)
