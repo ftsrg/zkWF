@@ -44,7 +44,7 @@ func Prove(r1csPath, pkPath, witnessPath, proofPath string) error {
 	}
 
 	bn254proof := proof.(*plonk_bn254.Proof)
-	fmt.Println("Soldity Poorf:", hex.EncodeToString(bn254proof.MarshalSolidity()))
+	fmt.Println("Soldity Proof:", hex.EncodeToString(bn254proof.MarshalSolidity()))
 
 	return nil
 }
