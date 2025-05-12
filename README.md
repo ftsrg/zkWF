@@ -149,3 +149,24 @@ This will fill out the hash, randomnness, public key, and signature inputs for t
 ```bash
 ./bin/zkWF prove circuit.r1cs pk.bin full.wtns
 ```
+
+## Citation
+If you use zkWF in your research or project, please cite the following paper:
+
+```
+@article{zkWF1,
+  title={Blockchain-Based, Confidentiality-Preserving Orchestration of Collaborative Workflows},
+  volume={15},
+  ISSN={20612079},
+  DOI={10.36244/ICJ.2023.3.8},
+  number={3},
+  journal={Infocommunications Journal},
+  author={Toldi, Balázs Ádám and Kocsis, Imre},
+  year={2023},
+  pages={72–81},
+  language={en}
+}
+```
+
+> [!NOTE]  
+> This paper describes the initial iteration of the zkWF project. A follow-up paper covering the current version of the implementation is currently in progress.
