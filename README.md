@@ -2,6 +2,9 @@
 
 This is the second iteration of the zkWF (Zero Knowledge Workflow) project. The goal of this project is to create a workflow engine like system that can orchestrate business processes in a confidential and secure manner on a public blockchain. 
 
+> [!TIP]
+> For those interested in the initial iteration of zkWF, the `zkWF1` branch contains the original implementation.  
+
 ## About zkWF
 
 zkWF is a zero-knowledge workflow protocol that enables secure, verifiable process execution across untrusted parties. At its core, zkWF uses blockchain-based smart contracts to enforce correctness while preserving confidentiality. Each process instance is governed by a dedicated smart contract, which stores:   
